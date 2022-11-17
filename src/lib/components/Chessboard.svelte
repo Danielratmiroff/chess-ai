@@ -16,7 +16,10 @@
 			board = new Chessboard(chessboardElm, {
 				position: chess.fen(),
 				sprite: { url: sprite },
-				orientation: COLOR.white
+				orientation: COLOR.white,
+				style: {
+					cssClass: 'blue'
+				}
 			});
 
 			board.enableMoveInput(inputHandler, COLOR.white);
@@ -26,21 +29,18 @@
 	// continue: validation of move input
 
 	function inputHandler(event: any) {
-		console.log(event);
+		// console.log(event);
 		switch (event.type) {
 			case INPUT_EVENT_TYPE.moveInputStarted:
 				return true;
 			case INPUT_EVENT_TYPE.validateMoveInput:
-				if (isMoveValid(event)) {
-					updatePosition(event);
-				}
-				return true;
+				return isMoveValid(event);
 			case INPUT_EVENT_TYPE.moveInputCanceled:
 				return true;
 		}
 	}
 
-	function updatePosition(event: any) {
+	function AImove(event: any) {
 		event.chessboard.disableMoveInput();
 
 		board.chessboard.state.moveInputProcess.then(() => {
