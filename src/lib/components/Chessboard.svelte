@@ -5,7 +5,8 @@
 	import { FEN } from './cm-chessboard/model/Position.js';
 	// video: explain why it looked bad before this and why i needed to add css to the board
 	import '$lib/styles/cm-chessboard.scss';
-	import { Chess } from 'chess.js';
+	import { Chess, type Move } from 'chess.js';
+	import { MOVE_FLAGS, PIECES, PST_OPPONENT, PST_SELF, WEIGHTS } from '$lib/data/constants';
 
 	let board: any;
 	let chessboardElm: any;
@@ -26,8 +27,6 @@
 		}
 	});
 
-	// continue: validation of move input
-
 	function inputHandler(event: any) {
 		// console.log(event);
 		switch (event.type) {
@@ -40,31 +39,60 @@
 		}
 	}
 
-	function AImove(event: any) {
-		event.chessboard.disableMoveInput();
+	function evaluateBoard(move: Move, prevScore: any, color: any) {
+		// todo: prob remove 'a'charcode thingy bc I don't understand it
+		let newScore = prevScore;
+		const from = [8 - parseInt(move.from.charAt(1)), move.from.charCodeAt(0) - 'a'.charCodeAt(0)];
+		const to = [8 - parseInt(move.to.charAt(1)), move.to.charCodeAt(0) - 'a'.charCodeAt(0)];
 
-		board.chessboard.state.moveInputProcess.then(() => {
-			board.chessboard.setPosition(chess.fen(), true).then(() => {
-				const possibleMoves = chess.moves({ verbose: true });
+		if (move.captured !== undefined) {
+			// Opponent piece was captured
+			if (move.color === color) {
+				newScore += WEIGHTS[move.captured] + PST_OPPONENT[move.color][move.captured][to[0]][to[1]];
+			}
+			// Our piece was captured
+			else {
+				newScore -= WEIGHTS[move.captured] + PST_SELF[move.color][move.captured][to[0]][to[1]];
+			}
+		}
 
-				if (possibleMoves.length > 0) {
-					// refactor - use secure random thing
-					const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-					const randomMove = possibleMoves[randomIndex];
+		if (move.flags.includes(MOVE_FLAGS.PROMOTION)) {
+			// NOTE: promote to queen for simplicity
+			move.promotion = PIECES.QUEEN;
 
-					setTimeout(() => {
-						chess.move({ from: randomMove.from, to: randomMove.to });
-						event.chessboard.enableMoveInput(inputHandler, COLOR.white);
-						event.chessboard.setPosition(chess.fen(), true);
-					}, 500);
-				}
-			});
-		});
+			// Our piece was promoted
+			if (move.color === color) {
+				newScore -= WEIGHTS[move.piece] + PST_SELF[move.color][move.piece][from[0]][from[1]];
+				newScore += WEIGHTS[move.promotion] + PST_SELF[move.color][move.promotion][to[0]][to[1]];
+			}
+			// Opponent piece was promoted
+			else {
+				newScore += WEIGHTS[move.piece] + PST_SELF[move.color][move.piece][from[0]][from[1]];
+				newScore -= WEIGHTS[move.promotion] + PST_SELF[move.color][move.promotion][to[0]][to[1]];
+			}
+		}
+
+		if (move.color !== color) {
+			newScore += PST_SELF[move.color][move.piece][from[0]][from[1]];
+			newScore -= PST_SELF[move.color][move.piece][to[0]][to[1]];
+		} else {
+			newScore -= PST_SELF[move.color][move.piece][from[0]][from[1]];
+			newScore += PST_SELF[move.color][move.piece][to[0]][to[1]];
+		}
+
+		return newScore;
 	}
 
 	function isMoveValid(event: any) {
 		// video: explain how the chess knows which move to move (it knows which piece is in which place)
-		return chess.move({ from: event.squareFrom, to: event.squareTo });
+		const move = chess.move({ from: event.squareFrom, to: event.squareTo });
+		if (!move) {
+			return;
+		}
+		console.log(move.flags);
+		// continue -- need to trigger a evaluateBoard on move
+		evaluateBoard(move, 100, 'w');
+		return move;
 	}
 </script>
 
