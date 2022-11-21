@@ -8,7 +8,6 @@ import type { Move } from 'chess.js';
 export function evaluateBoard(move: Move, prevScore: any, color: any) {
 	// todo: prob remove 'a'charcode thingy bc I don't understand it
 	let newScore = prevScore;
-	console.log(move);
 	const from = [8 - parseInt(move.from.charAt(1)), move.from.charCodeAt(0) - 'a'.charCodeAt(0)];
 	const to = [8 - parseInt(move.to.charAt(1)), move.to.charCodeAt(0) - 'a'.charCodeAt(0)];
 

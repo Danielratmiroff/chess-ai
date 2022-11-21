@@ -10,14 +10,15 @@
 
 	let board: any;
 	let chessboardElm: HTMLDivElement;
-	const chess = new Chess();
+	const chessGame = new Chess();
 	let score = 0;
 
 	onMount(() => {
 		if (chessboardElm) {
 			board = new Chessboard(chessboardElm, {
-				position: chess.fen(),
+				position: chessGame.fen(),
 				sprite: { url: sprite },
+				draggable: true,
 				orientation: COLOR.white,
 				style: {
 					cssClass: 'blue'
@@ -34,29 +35,30 @@
 		}
 
 		let max = -Infinity;
-		chess.moves({ verbose: true }).forEach((possibleMove) => {
+		chessGame.moves({ verbose: true }).forEach((possibleMove) => {
 			// might be better way to avoid string move type
+
 			if (typeof possibleMove === 'string') {
 				return;
 			}
+
 			let moveScore = -negaMax(possibleMove, color, depth - 1);
 			if (moveScore > max) {
-				max = score;
+				max = moveScore;
 			}
 		});
+
 		return max;
 	}
 
 	function validateMoveInput(event: any) {
 		// video: explain how the chess knows which move to move (it knows which piece is in which place)
 		const move = { from: event.squareFrom, to: event.squareTo };
-		const gameMove = chess.move(move);
+		const gameMove = chessGame.move(move);
 
 		if (gameMove === null) {
 			return;
 		}
-		// continue -- need to pass moves to the AI to execute them
-		console.log(negaMax(gameMove, gameMove.color, 1));
 
 		score = evaluateBoard(gameMove, score, gameMove.color);
 
@@ -73,9 +75,39 @@
 			case INPUT_EVENT_TYPE.moveInputStarted:
 				return true;
 			case INPUT_EVENT_TYPE.validateMoveInput:
-				return validateMoveInput(event);
+				const result = validateMoveInput(event);
+
+				board.state.moveInputProcess.then(() => {
+					// wait for the move input process has finished
+					board.setPosition(chessGame.fen(), true).then(() => {
+						// update position, maybe castled and wait for animation has finished
+						const possibleMoves = chessGame.moves({ verbose: true });
+						if (possibleMoves.length > 0) {
+							const randomIndex = Math.floor(Math.random() * possibleMoves.length);
+							const randomMove = possibleMoves[randomIndex];
+
+							// continue - need to return the perfect possibleMove
+							if (typeof randomMove === 'string') {
+								return;
+							}
+
+							setTimeout(() => {
+								// move black
+								chessGame.move({ from: randomMove.from, to: randomMove.to });
+								// enable player to play again
+								event.chessboard.enableMoveInput(inputHandler, COLOR.white);
+								// update board
+								event.chessboard.setPosition(chessGame.fen(), true);
+							}, 500);
+						}
+					});
+				});
+
+				return result;
 			case INPUT_EVENT_TYPE.moveInputCanceled:
 				return true;
+			case INPUT_EVENT_TYPE.moveInputStarted:
+				return;
 		}
 	}
 </script>
