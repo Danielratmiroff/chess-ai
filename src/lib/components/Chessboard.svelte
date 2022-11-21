@@ -12,6 +12,7 @@
 	let chessboardElm: HTMLDivElement;
 	const chessGame = new Chess();
 	let score = 0;
+	let bestMove: Move | undefined;
 
 	onMount(() => {
 		if (chessboardElm) {
@@ -29,20 +30,39 @@
 		}
 	});
 
-	function negaMax(move: Move, color: string, depth: number) {
+	function quiesce(newScore: number) {
+		let max = newScore;
+
+		chessGame.moves({ verbose: true }).forEach((possibleMove) => {
+			if (typeof possibleMove === 'string') {
+				throw new Error('possible is str');
+				return;
+			}
+
+			let evalScore = evaluateBoard(possibleMove, max, possibleMove.color);
+			if (evalScore > max) {
+				max = evalScore;
+				bestMove = possibleMove;
+			}
+		});
+
+		return max;
+	}
+
+	function negaMax(newScore: number, depth: number) {
 		if (depth < 0) {
-			return evaluateBoard(move, score, color);
+			return quiesce(newScore);
 		}
 
 		let max = -Infinity;
 		chessGame.moves({ verbose: true }).forEach((possibleMove) => {
 			// might be better way to avoid string move type
-
 			if (typeof possibleMove === 'string') {
+				throw new Error('possible is str');
 				return;
 			}
 
-			let moveScore = -negaMax(possibleMove, color, depth - 1);
+			let moveScore = -negaMax(newScore, depth - 1);
 			if (moveScore > max) {
 				max = moveScore;
 			}
@@ -57,11 +77,15 @@
 		const gameMove = chessGame.move(move);
 
 		if (gameMove === null) {
+			if (chessGame.inCheck()) {
+				console.log('game in check');
+				return;
+			}
+
 			return;
 		}
 
 		score = evaluateBoard(gameMove, score, gameMove.color);
-
 		return gameMove;
 	}
 
@@ -76,32 +100,57 @@
 				return true;
 			case INPUT_EVENT_TYPE.validateMoveInput:
 				const result = validateMoveInput(event);
+				if (result === undefined) {
+					event.chessboard.enableMoveInput(inputHandler, COLOR.white);
+					return;
+				}
 
 				board.state.moveInputProcess.then(() => {
 					// wait for the move input process has finished
 					board.setPosition(chessGame.fen(), true).then(() => {
 						// update position, maybe castled and wait for animation has finished
-						const possibleMoves = chessGame.moves({ verbose: true });
-						if (possibleMoves.length > 0) {
-							const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-							const randomMove = possibleMoves[randomIndex];
 
-							// continue - need to return the perfect possibleMove
-							if (typeof randomMove === 'string') {
-								return;
+						negaMax(score, -4);
+
+						setTimeout(() => {
+							if (bestMove === undefined) {
+								throw new Error('best move is undefined');
 							}
-
-							setTimeout(() => {
-								// move black
-								chessGame.move({ from: randomMove.from, to: randomMove.to });
-								// enable player to play again
-								event.chessboard.enableMoveInput(inputHandler, COLOR.white);
-								// update board
-								event.chessboard.setPosition(chessGame.fen(), true);
-							}, 500);
-						}
+							// move black
+							chessGame.move({ from: bestMove.from, to: bestMove.to });
+							// enable player to play again
+							event.chessboard.enableMoveInput(inputHandler, COLOR.white);
+							// update board
+							event.chessboard.setPosition(chessGame.fen(), true);
+						}, 500);
 					});
 				});
+
+				// board.state.moveInputProcess.then(() => {
+				// 	// wait for the move input process has finished
+				// 	board.setPosition(chessGame.fen(), true).then(() => {
+				// 		// update position, maybe castled and wait for animation has finished
+				// 		const possibleMoves = chessGame.moves({ verbose: true });
+				// 		if (possibleMoves.length > 0) {
+				// 			const randomIndex = Math.floor(Math.random() * possibleMoves.length);
+				// 			const randomMove = possibleMoves[randomIndex];
+
+				// 			// continue - need to return the perfect possibleMove
+				// 			if (typeof randomMove === 'string') {
+				// 				return;
+				// 			}
+
+				// 			setTimeout(() => {
+				// 				// move black
+				// 				chessGame.move({ from: randomMove.from, to: randomMove.to });
+				// 				// enable player to play again
+				// 				event.chessboard.enableMoveInput(inputHandler, COLOR.white);
+				// 				// update board
+				// 				event.chessboard.setPosition(chessGame.fen(), true);
+				// 			}, 500);
+				// 		}
+				// 	});
+				// });
 
 				return result;
 			case INPUT_EVENT_TYPE.moveInputCanceled:
