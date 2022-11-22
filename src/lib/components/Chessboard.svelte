@@ -5,7 +5,7 @@
 	// video: explain why it looked bad before this and why i needed to add css to the board
 	import '$lib/styles/cm-chessboard.scss';
 	import { Chess, type Move } from 'chess.js';
-	import { evaluateBoard } from './chessboard.js';
+	import { evaluateBoard } from './evaluateBoard';
 	// rename chessboard files to something that makes sense
 
 	let board: any;
@@ -30,67 +30,60 @@
 		}
 	});
 
-	function quiesce(newScore: number) {
-		let max = newScore;
-
-		chessGame.moves({ verbose: true }).forEach((possibleMove) => {
-			if (typeof possibleMove === 'string') {
-				throw new Error('possible is str');
-				return;
-			}
-
-			let evalScore = evaluateBoard(possibleMove, max, possibleMove.color);
-			if (evalScore > max) {
-				max = evalScore;
-				bestMove = possibleMove;
-			}
-		});
-
-		return max;
-	}
-
-	function negaMax(newScore: number, depth: number) {
-		if (depth < 0) {
-			return quiesce(newScore);
+	function negaMax(game: Chess, alpha: number, beta: number, depth: number) {
+		if (depth === 0) {
+			return evaluateBoard(game);
 		}
 
-		let max = -Infinity;
-		chessGame.moves({ verbose: true }).forEach((possibleMove) => {
+		let bestScore = -Infinity;
+
+		game.moves({ verbose: true }).forEach((possibleMove, i) => {
 			// might be better way to avoid string move type
 			if (typeof possibleMove === 'string') {
 				throw new Error('possible is str');
-				return;
 			}
 
-			let moveScore = -negaMax(newScore, depth - 1);
-			if (moveScore > max) {
-				max = moveScore;
+			// continue - need to introduce right way alpha-prunnnig
+
+			game.move(possibleMove);
+			bestScore = -negaMax(game, -beta, -alpha, depth - 1);
+			game.undo();
+
+			if (bestScore >= alpha) {
+				alpha = bestScore;
+			}
+
+			if (bestScore >= beta) {
+				return bestScore;
 			}
 		});
 
-		return max;
+		return bestScore;
 	}
 
-	function validateMoveInput(event: any) {
-		// video: explain how the chess knows which move to move (it knows which piece is in which place)
-		const move = { from: event.squareFrom, to: event.squareTo };
-		const gameMove = chessGame.move(move);
+	function calculateBestMove(game: Chess) {
+		var possibleNextMoves = game.moves({ verbose: true });
+		const bestValue = -Infinity;
+		var bestMove = -Infinity;
 
-		if (gameMove === null) {
-			if (chessGame.inCheck()) {
-				console.log('game in check');
-				return;
+		const alpha = -Infinity;
+		const beta = Infinity;
+		var bestMoveFound: string | Move;
+
+		possibleNextMoves.forEach((possibleMove) => {
+			game.move(possibleMove);
+			var boardValue = -negaMax(game, -alpha, beta, 2);
+			game.undo();
+
+			console.log('----------', boardValue, bestValue);
+			if (boardValue > bestMove) {
+				console.log('======', boardValue, bestValue);
+				bestMove = boardValue;
+				bestMoveFound = possibleMove;
 			}
+		});
 
-			return;
-		}
-
-		score = evaluateBoard(gameMove, score, gameMove.color);
-		return gameMove;
-	}
-
-	function isMoveValid(move: Move) {
-		return;
+		return bestMoveFound!;
 	}
 
 	function inputHandler(event: any) {
@@ -110,14 +103,12 @@
 					board.setPosition(chessGame.fen(), true).then(() => {
 						// update position, maybe castled and wait for animation has finished
 
-						negaMax(score, -4);
+						// console.log('eval in input func', evaluateBoard(chessGame));
 
 						setTimeout(() => {
-							if (bestMove === undefined) {
-								throw new Error('best move is undefined');
-							}
+							const nextMove = calculateBestMove(chessGame);
 							// move black
-							chessGame.move({ from: bestMove.from, to: bestMove.to });
+							chessGame.move(nextMove);
 							// enable player to play again
 							event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 							// update board
@@ -158,6 +149,24 @@
 			case INPUT_EVENT_TYPE.moveInputStarted:
 				return;
 		}
+	}
+
+	function validateMoveInput(event: any) {
+		// video: explain how the chess knows which move to move (it knows which piece is in which place)
+		const move = { from: event.squareFrom, to: event.squareTo };
+		const gameMove = chessGame.move(move);
+
+		if (gameMove === null) {
+			if (chessGame.inCheck()) {
+				console.log('game in check');
+				return;
+			}
+
+			return;
+		}
+
+		// score = evaluateBoard(gameMove, score, gameMove.color);
+		return gameMove;
 	}
 </script>
 

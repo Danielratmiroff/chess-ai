@@ -10,16 +10,6 @@ export enum MOVE_FLAGS {
 	QUEEN_CASTLING = 'q'
 }
 
-export enum PIECES {
-	PAWS = 'p',
-	KNIGHTS = 'n',
-	BISHOP = 'b',
-	ROOK = 'r',
-	QUEEN = 'q',
-	KING = 'k',
-	KING_ENDGAME = 'k_e'
-}
-
 export enum WEIGHTS {
 	p = 100,
 	n = 280,
