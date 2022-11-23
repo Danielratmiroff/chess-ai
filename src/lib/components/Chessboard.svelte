@@ -11,7 +11,7 @@
 	let board: any;
 	let chessboardElm: HTMLDivElement;
 	const chessGame = new Chess();
-	let score = 0;
+	let movesAnalised = 0;
 	let bestMove: Move | undefined;
 
 	onMount(() => {
@@ -38,6 +38,7 @@
 		let bestScore = -Infinity;
 
 		game.moves({ verbose: true }).forEach((possibleMove, i) => {
+			movesAnalised++;
 			// might be better way to avoid string move type
 			if (typeof possibleMove === 'string') {
 				throw new Error('possible is str');
@@ -71,17 +72,20 @@
 		var bestMoveFound: string | Move;
 
 		possibleNextMoves.forEach((possibleMove) => {
+			movesAnalised++;
 			game.move(possibleMove);
-			var boardValue = -negaMax(game, -alpha, beta, 2);
+			var boardValue = -negaMax(game, -alpha, beta, 1);
 			game.undo();
 
-			console.log('----------', boardValue, bestValue);
+			// console.log('----------', boardValue, bestValue);
 			if (boardValue > bestMove) {
-				console.log('======', boardValue, bestValue);
+				// console.log('======', boardValue, bestValue);
 				bestMove = boardValue;
 				bestMoveFound = possibleMove;
 			}
 		});
+		console.log(bestMove);
+		console.log(movesAnalised);
 
 		return bestMoveFound!;
 	}
