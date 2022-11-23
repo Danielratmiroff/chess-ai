@@ -12,6 +12,7 @@
 	let chessboardElm: HTMLDivElement;
 	const chessGame = new Chess();
 	let movesAnalised = 0;
+	let aa = 0;
 	let bestMove: Move | undefined;
 
 	onMount(() => {
@@ -30,12 +31,15 @@
 		}
 	});
 
-	function negaMax(game: Chess, alpha: number, beta: number, depth: number) {
+	function negaMax(game: Chess, board: Chessboard, alpha: number, beta: number, depth: number) {
 		if (depth === 0) {
 			return evaluateBoard(game);
 		}
 
 		let bestScore = -Infinity;
+
+		aa++;
+		console.log(game.fen());
 
 		game.moves({ verbose: true }).forEach((possibleMove, i) => {
 			movesAnalised++;
@@ -45,9 +49,9 @@
 			}
 
 			// continue - need to introduce right way alpha-prunnnig
-
 			game.move(possibleMove);
-			bestScore = -negaMax(game, -beta, -alpha, depth - 1);
+			board.setPosition(chessGame.fen(), true);
+			bestScore = -negaMax(game, board, -beta, -alpha, depth - 1);
 			game.undo();
 
 			if (bestScore >= alpha) {
@@ -62,9 +66,9 @@
 		return bestScore;
 	}
 
-	function calculateBestMove(game: Chess) {
+	function calculateBestMove(game: Chess, board: Chessboard) {
 		var possibleNextMoves = game.moves({ verbose: true });
-		const bestValue = -Infinity;
+		let boardValue = -Infinity;
 		var bestMove = -Infinity;
 
 		const alpha = -Infinity;
@@ -74,7 +78,9 @@
 		possibleNextMoves.forEach((possibleMove) => {
 			movesAnalised++;
 			game.move(possibleMove);
-			var boardValue = -negaMax(game, -alpha, beta, 1);
+			board.setPosition(chessGame.fen(), true).then(() => {
+				boardValue = -negaMax(game, board, -alpha, beta, 1);
+			});
 			game.undo();
 
 			// console.log('----------', boardValue, bestValue);
@@ -84,8 +90,9 @@
 				bestMoveFound = possibleMove;
 			}
 		});
-		console.log(bestMove);
+
 		console.log(movesAnalised);
+		console.log(aa);
 
 		return bestMoveFound!;
 	}
@@ -110,7 +117,7 @@
 						// console.log('eval in input func', evaluateBoard(chessGame));
 
 						setTimeout(() => {
-							const nextMove = calculateBestMove(chessGame);
+							const nextMove = calculateBestMove(chessGame, board);
 							// move black
 							chessGame.move(nextMove);
 							// enable player to play again
