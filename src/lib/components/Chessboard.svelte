@@ -12,8 +12,7 @@
 	let chessboardElm: HTMLDivElement;
 	const chessGame = new Chess();
 	let movesAnalised = 0;
-	let aa = 0;
-	let bestMove: Move | undefined;
+	let bestMove: Move | string;
 
 	onMount(() => {
 		if (chessboardElm) {
@@ -31,74 +30,69 @@
 		}
 	});
 
-	function negaMax(game: Chess, board: Chessboard, alpha: number, beta: number, depth: number) {
+	function negaMax(game: Chess, alpha: number, beta: number, depth: number): number {
 		if (depth === 0) {
 			return evaluateBoard(game);
 		}
 
-		let bestScore = -Infinity;
+		let bestscore = -Infinity;
 
-		aa++;
-		console.log(game.fen());
-
-		game.moves({ verbose: true }).forEach((possibleMove, i) => {
+		const moves = game.moves({ verbose: true });
+		for (const possibleMove of moves) {
 			movesAnalised++;
 			// might be better way to avoid string move type
 			if (typeof possibleMove === 'string') {
 				throw new Error('possible is str');
 			}
 
-			// continue - need to introduce right way alpha-prunnnig
+			// TODO - need to introduce right way alpha-prunnnig
 			game.move(possibleMove);
-			board.setPosition(chessGame.fen(), true);
-			bestScore = -negaMax(game, board, -beta, -alpha, depth - 1);
+			let score = -negaMax(game, -beta, -alpha, depth - 1);
 			game.undo();
 
-			if (bestScore >= alpha) {
-				alpha = bestScore;
+			if (score >= beta) {
+				return score;
 			}
 
-			if (bestScore >= beta) {
-				return bestScore;
+			if (score > bestscore) {
+				bestscore = score;
 			}
-		});
 
-		return bestScore;
+			if (score > alpha) {
+				alpha = score;
+			}
+		}
+
+		return bestscore;
 	}
 
-	function calculateBestMove(game: Chess, board: Chessboard) {
+	function calculateBestMove(game: Chess) {
 		var possibleNextMoves = game.moves({ verbose: true });
 		let boardValue = -Infinity;
-		var bestMove = -Infinity;
 
+		let bestscore = -Infinity;
 		const alpha = -Infinity;
 		const beta = Infinity;
-		var bestMoveFound: string | Move;
 
 		possibleNextMoves.forEach((possibleMove) => {
 			movesAnalised++;
 			game.move(possibleMove);
-			board.setPosition(chessGame.fen(), true).then(() => {
-				boardValue = -negaMax(game, board, -alpha, beta, 1);
-			});
+			boardValue = -negaMax(game, -alpha, beta, 1);
 			game.undo();
 
-			// console.log('----------', boardValue, bestValue);
-			if (boardValue > bestMove) {
-				// console.log('======', boardValue, bestValue);
-				bestMove = boardValue;
-				bestMoveFound = possibleMove;
+			if (boardValue > bestscore) {
+				bestscore = boardValue;
+				bestMove = possibleMove;
 			}
 		});
 
 		console.log(movesAnalised);
-		console.log(aa);
+		movesAnalised = 0;
 
-		return bestMoveFound!;
+		return bestMove;
 	}
 
 	function inputHandler(event: any) {
-		// console.log(event);
 		switch (event.type) {
 			case INPUT_EVENT_TYPE.moveInputStarted:
 				return true;
@@ -114,45 +108,17 @@
 					board.setPosition(chessGame.fen(), true).then(() => {
 						// update position, maybe castled and wait for animation has finished
 
-						// console.log('eval in input func', evaluateBoard(chessGame));
-
+						const nextMove = calculateBestMove(chessGame);
 						setTimeout(() => {
-							const nextMove = calculateBestMove(chessGame, board);
 							// move black
 							chessGame.move(nextMove);
-							// enable player to play again
-							event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 							// update board
 							event.chessboard.setPosition(chessGame.fen(), true);
-						}, 500);
+							// enable player to play again
+							event.chessboard.enableMoveInput(inputHandler, COLOR.white);
+						}, 100);
 					});
 				});
-
-				// board.state.moveInputProcess.then(() => {
-				// 	// wait for the move input process has finished
-				// 	board.setPosition(chessGame.fen(), true).then(() => {
-				// 		// update position, maybe castled and wait for animation has finished
-				// 		const possibleMoves = chessGame.moves({ verbose: true });
-				// 		if (possibleMoves.length > 0) {
-				// 			const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-				// 			const randomMove = possibleMoves[randomIndex];
-
-				// 			// continue - need to return the perfect possibleMove
-				// 			if (typeof randomMove === 'string') {
-				// 				return;
-				// 			}
-
-				// 			setTimeout(() => {
-				// 				// move black
-				// 				chessGame.move({ from: randomMove.from, to: randomMove.to });
-				// 				// enable player to play again
-				// 				event.chessboard.enableMoveInput(inputHandler, COLOR.white);
-				// 				// update board
-				// 				event.chessboard.setPosition(chessGame.fen(), true);
-				// 			}, 500);
-				// 		}
-				// 	});
-				// });
 
 				return result;
 			case INPUT_EVENT_TYPE.moveInputCanceled:
@@ -172,11 +138,18 @@
 				console.log('game in check');
 				return;
 			}
+			/* need to check
+			- check
+			- checkmate
+			- checkstale
+			- more
+		
+			TODO: show which pieces were captured
+			**/
 
 			return;
 		}
 
-		// score = evaluateBoard(gameMove, score, gameMove.color);
 		return gameMove;
 	}
 </script>

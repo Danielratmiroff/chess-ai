@@ -18,7 +18,6 @@ export function evaluateBoard(chessGame: any) {
 	var totalEvaluation = 0;
 	// TODO: need to introduce
 	// captures and promotions in eval function
-
 	for (var row = 0; row < 8; row++) {
 		for (var col = 0; col < 8; col++) {
 			totalEvaluation += getPieceValue(board[row][col], row, col);
@@ -38,9 +37,9 @@ function getPieceValue(piece: Piece, x: number, y: number) {
 
 	// maybe refactor this
 	if (piece.color === COLOR.white) {
-		return absoluteValue;
-	} else {
 		return -absoluteValue;
+	} else {
+		return absoluteValue;
 	}
 }
 
