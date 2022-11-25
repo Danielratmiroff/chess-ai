@@ -30,12 +30,49 @@
 		}
 	});
 
-	function negaMax(game: Chess, alpha: number, beta: number, depth: number): number {
-		if (depth === 0) {
-			return evaluateBoard(game);
+	function quiesce(game: Chess, alpha: number, beta: number): number {
+		const standPat = evaluateBoard(game);
+
+		if (standPat >= beta) {
+			console.log(beta);
+			return beta;
+		}
+		if (alpha < standPat) {
+			alpha = standPat;
 		}
 
-		let bestscore = -Infinity;
+		const moves = game.moves({ verbose: true });
+		for (const possibleMove of moves) {
+			movesAnalised++;
+			// might be better way to avoid string move type
+			if (typeof possibleMove === 'string') {
+				throw new Error('possible is str');
+			}
+
+			if (possibleMove.captured) {
+				game.move(possibleMove);
+				let score = -quiesce(game, -beta, -alpha);
+				game.undo();
+
+				if (score >= beta) {
+					return beta;
+				}
+
+				if (score > alpha) {
+					alpha = score;
+				}
+			}
+		}
+
+		return alpha;
+	}
+
+	function negaMax(alpha: number, beta: number, game: Chess, depth: number): number {
+		if (depth === 0) {
+			return quiesce(game, alpha, beta);
+		}
+
+		let bestscore = Number.NEGATIVE_INFINITY;
 
 		const moves = game.moves({ verbose: true });
 		for (const possibleMove of moves) {
@@ -47,10 +84,11 @@
 
 			// TODO - need to introduce right way alpha-prunnnig
 			game.move(possibleMove);
-			let score = -negaMax(game, -beta, -alpha, depth - 1);
+			let score = -negaMax(-beta, -alpha, game, depth - 1);
 			game.undo();
 
 			if (score >= beta) {
+				console.log(1, score);
 				return score;
 			}
 
@@ -68,25 +106,29 @@
 
 	function calculateBestMove(game: Chess) {
 		var possibleNextMoves = game.moves({ verbose: true });
-		let boardValue = -Infinity;
+		let boardValue = Number.NEGATIVE_INFINITY;
 
-		let bestscore = -Infinity;
-		const alpha = -Infinity;
-		const beta = Infinity;
+		let bestscore = Number.NEGATIVE_INFINITY;
+		let alpha = Number.NEGATIVE_INFINITY;
+		let beta = Number.POSITIVE_INFINITY;
 
 		possibleNextMoves.forEach((possibleMove) => {
 			movesAnalised++;
 			game.move(possibleMove);
-			boardValue = -negaMax(game, -alpha, beta, 1);
+			boardValue = -negaMax(-beta, -alpha, game, 1);
 			game.undo();
 
 			if (boardValue > bestscore) {
 				bestscore = boardValue;
 				bestMove = possibleMove;
 			}
+			if (boardValue > alpha) {
+				alpha = boardValue;
+			}
 		});
 
-		console.log(movesAnalised);
+		console.log(bestMove);
+		console.log('moves', movesAnalised);
 		movesAnalised = 0;
 
 		return bestMove;
