@@ -388,8 +388,8 @@ export class ChessboardView {
 	}
 
 	getPieceElement(square) {
-		if (square.length < 2) {
-			throw new Error('980e03');
+		if (square === undefined || square?.length < 2) {
+			console.warn('invalid square', square);
 		}
 		const piece = this.piecesGroup.querySelector(`g[data-square='${square}']`);
 		if (!piece) {

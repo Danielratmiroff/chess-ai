@@ -6,11 +6,14 @@
 	import '$lib/styles/cm-chessboard.scss';
 	import { Chess, type Move } from 'chess.js';
 	import { evaluateBoard } from './evaluateBoard';
+	import { checkStatus } from './boardStatus.js';
 
 	let board: any;
 	let chessboardElm: HTMLDivElement;
 	const chess = new Chess();
 	let movesAnalised = 0;
+	let newScore = 0;
+	let endMsg = '';
 
 	onMount(() => {
 		if (chessboardElm) {
@@ -28,58 +31,62 @@
 		}
 	});
 
-	function negaMax(alpha: number, beta: number, depth: number): any {
+	function negaMax(
+		game: Chess,
+		alpha: number,
+		beta: number,
+		depth: number,
+		move: Move,
+		sum: number
+	): { bestMove: unknown; bestScore: number } {
 		movesAnalised++;
 		let bestScore = Number.NEGATIVE_INFINITY;
 		let bestMove: unknown;
 
 		if (depth === 0) {
-			return { bestMove, bestScore: evaluateBoard(chess) };
+			return { bestMove: move, bestScore: sum };
 		}
 
-		const moves = chess.moves({ verbose: true });
-
+		const moves = game.moves({ verbose: true }) as Move[];
 		// Sort moves randomly, so the same move isn't always picked on ties
 		moves.sort(() => 0.5 - Math.random());
 
 		for (const possibleMove of moves) {
-			// might be better way to avoid string move type
-			if (typeof possibleMove === 'string') {
-				throw new Error('possible is str');
-			}
-
-			chess.move(possibleMove);
-			const { bestScore: score } = negaMax(-beta, -alpha, depth - 1);
-			chess.undo();
+			game.move(possibleMove);
+			const newSum = evaluateBoard(game);
+			const { bestScore: score } = negaMax(game, -beta, -alpha, depth - 1, possibleMove, newSum);
+			game.undo();
 
 			if (score >= beta) {
 				return { bestMove, bestScore: score };
 			}
 
-			if (score > bestScore) {
+			if (bestScore < score) {
 				bestScore = score;
 				bestMove = possibleMove;
 			}
 
-			if (score > alpha) {
+			if (alpha < score) {
 				alpha = score;
+				if (alpha >= beta) {
+					break;
+				}
 			}
 		}
+
 		return { bestMove, bestScore };
 	}
 
 	function calculateBestMove() {
+		movesAnalised = 0;
 		let alpha = Number.NEGATIVE_INFINITY;
 		let beta = Number.POSITIVE_INFINITY;
 		const depth = 3;
 
-		const result = negaMax(-beta, -alpha, depth);
+		let move = chess.moves({ verbose: true })[0] as Move;
+		const { bestMove } = negaMax(chess, alpha, beta, depth, move, newScore);
 
-		console.table(result);
-		console.log('moves', movesAnalised);
-		movesAnalised = 0;
-
-		return result.bestMove;
+		return bestMove;
 	}
 
 	function inputHandler(event: any) {
@@ -88,7 +95,7 @@
 				return true;
 			case INPUT_EVENT_TYPE.validateMoveInput:
 				const result = validateMoveInput(event);
-				if (result === undefined) {
+				if (result === undefined || result === null) {
 					event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 					return;
 				}
@@ -96,25 +103,25 @@
 				board.state.moveInputProcess.then(() => {
 					// wait for the move input process has finished
 					board.setPosition(chess.fen(), true).then(() => {
-						// update position, maybe castled and wait for animation has finished
-
-						const nextMove = calculateBestMove();
 						setTimeout(() => {
 							// move black
+							const nextMove = calculateBestMove() as Move;
 							chess.move(nextMove);
 							// update board
 							event.chessboard.setPosition(chess.fen(), true);
+							newScore = evaluateBoard(chess);
+							//
+							checkStatus(chess, COLOR.black);
 							// enable player to play again
 							event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 						}, 100);
 					});
 				});
 
+				newScore = evaluateBoard(chess);
 				return result;
 			case INPUT_EVENT_TYPE.moveInputCanceled:
 				return true;
-			case INPUT_EVENT_TYPE.moveInputStarted:
-				return;
 		}
 	}
 
@@ -123,23 +130,19 @@
 		const move = { from: event.squareFrom, to: event.squareTo };
 		const gameMove = chess.move(move);
 
-		if (gameMove === null) {
-			if (chess.inCheck()) {
-				console.log('game in check');
-				return;
-			}
-			/* need to check
-			- check
-			- checkmate
-			- checkstale
-			- more
-		
-			TODO: show which pieces were captured
-			**/
-
+		const { ended: blackLost, status: blackStatus } = checkStatus(chess, COLOR.black);
+		if (blackLost) {
+			endMsg = blackStatus;
 			return;
 		}
 
+		const { ended: whiteLost, status: whiteStatus } = checkStatus(chess, COLOR.white);
+		if (whiteLost) {
+			endMsg = whiteStatus;
+			return;
+		}
+
+		// TODO: show which pieces were captured
 		return gameMove;
 	}
 </script>
@@ -148,4 +151,11 @@
 
 <section>
 	<div width="1000" bind:this={chessboardElm} />
+	<div>
+		<p>Black's Score: {newScore}</p>
+		<p>Moves analised: {movesAnalised}</p>
+	</div>
+	{#if endMsg.length > 0}
+		<h1>{endMsg}</h1>
+	{/if}
 </section>
