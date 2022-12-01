@@ -14,6 +14,7 @@
 	let movesAnalised = 0;
 	let newScore = 0;
 	let endMsg = '';
+	let bestMove: Move | null = null;
 
 	onMount(() => {
 		if (chessboardElm) {
@@ -31,62 +32,123 @@
 		}
 	});
 
-	function negaMax(
+	// function negaMax(
+	// 	game: Chess,
+	// 	alpha: number,
+	// 	beta: number,
+	// 	depth: number,
+	// 	move: Move,
+	// 	sum: number
+	// ): { bestMove: unknown; bestScore: number } {
+	// 	movesAnalised++;
+	// 	let bestScore = Number.NEGATIVE_INFINITY;
+	// 	let bestMove: unknown;
+
+	// 	if (depth === 0) {
+	// 		return { bestMove: move, bestScore: sum };
+	// 	}
+
+	// 	const moves = game.moves({ verbose: true }) as Move[];
+	// 	// Sort moves randomly, so the same move isn't always picked on ties
+	// 	moves.sort(() => 0.5 - Math.random());
+
+	// 	for (const possibleMove of moves) {
+	// 		game.move(possibleMove);
+	// 		const newSum = evaluateBoard(game);
+	// 		const { bestScore: score } = negaMax(game, -beta, -alpha, depth - 1, possibleMove, newSum);
+	// 		game.undo();
+
+	// 		if (score >= beta) {
+	// 			return { bestMove, bestScore: score };
+	// 		}
+
+	// 		if (bestScore < score) {
+	// 			bestScore = score;
+	// 			bestMove = possibleMove;
+	// 		}
+
+	// 		if (alpha < score) {
+	// 			alpha = score;
+	// 			if (alpha >= beta) {
+	// 				break;
+	// 			}
+	// 		}
+	// 	}
+
+	// 	return { bestMove, bestScore };
+	// }
+
+	// Alpha = best value for MAX
+	// Beta = best value for MIN
+	// Depth = depth of search
+	// Player = current player
+	// Return value = best move for current player
+	function minimax(
 		game: Chess,
 		alpha: number,
 		beta: number,
 		depth: number,
-		move: Move,
-		sum: number
-	): { bestMove: unknown; bestScore: number } {
-		movesAnalised++;
-		let bestScore = Number.NEGATIVE_INFINITY;
-		let bestMove: unknown;
-
+		maximizingPlayer: boolean
+	) {
 		if (depth === 0) {
-			return { bestMove: move, bestScore: sum };
+			return evaluateBoard(game);
 		}
 
-		const moves = game.moves({ verbose: true }) as Move[];
-		// Sort moves randomly, so the same move isn't always picked on ties
-		moves.sort(() => 0.5 - Math.random());
+		const possibleMoves = game.moves({ verbose: true }) as Move[];
 
-		for (const possibleMove of moves) {
-			game.move(possibleMove);
-			const newSum = evaluateBoard(game);
-			const { bestScore: score } = negaMax(game, -beta, -alpha, depth - 1, possibleMove, newSum);
+		// Sort moves randomly, so the same move isn't always picked on ties
+		possibleMoves.sort(() => 0.5 - Math.random());
+
+		var maxValue = Number.NEGATIVE_INFINITY;
+		var minValue = Number.POSITIVE_INFINITY;
+
+		for (let move of possibleMoves) {
+			game.move(move);
+			const childValue = minimax(game, alpha, beta, depth - 1, maximizingPlayer);
 			game.undo();
 
-			if (score >= beta) {
-				return { bestMove, bestScore: score };
-			}
-
-			if (bestScore < score) {
-				bestScore = score;
-				bestMove = possibleMove;
-			}
-
-			if (alpha < score) {
-				alpha = score;
-				if (alpha >= beta) {
-					break;
+			if (maximizingPlayer) {
+				if (childValue > maxValue) {
+					maxValue = childValue;
+					bestMove = move;
 				}
+
+				if (childValue > alpha) {
+					alpha = childValue;
+				}
+			} else {
+				if (childValue < minValue) {
+					minValue = childValue;
+					bestMove = move;
+				}
+				if (childValue < beta) {
+					beta = childValue;
+				}
+			}
+
+			if (alpha >= beta) {
+				break;
 			}
 		}
 
-		return { bestMove, bestScore };
+		return maximizingPlayer ? maxValue : minValue;
 	}
 
-	function calculateBestMove() {
+	function calculateBestMove(): [Move, number] {
 		movesAnalised = 0;
 		let alpha = Number.NEGATIVE_INFINITY;
 		let beta = Number.POSITIVE_INFINITY;
 		const depth = 3;
 
 		let move = chess.moves({ verbose: true })[0] as Move;
-		const { bestMove } = negaMax(chess, alpha, beta, depth, move, newScore);
+		const score = minimax(chess, alpha, beta, depth, true);
+		console.log(score, bestMove);
 
-		return bestMove;
+		if (bestMove === null) {
+			return [move, score];
+		} else {
+			return [bestMove, score];
+		}
 	}
 
 	function inputHandler(event: any) {
@@ -103,15 +165,16 @@
 				board.state.moveInputProcess.then(() => {
 					// wait for the move input process has finished
 					board.setPosition(chess.fen(), true).then(() => {
+						const [move, score] = calculateBestMove();
+
 						setTimeout(() => {
 							// move black
-							const nextMove = calculateBestMove() as Move;
-							chess.move(nextMove);
+							chess.move(move);
 							// update board
 							event.chessboard.setPosition(chess.fen(), true);
-							newScore = evaluateBoard(chess);
+							newScore = score;
 							//
-							checkStatus(chess, COLOR.black);
+							// checkStatus(chess, COLOR.black);
 							// enable player to play again
 							event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 						}, 100);
