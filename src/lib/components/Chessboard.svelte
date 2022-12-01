@@ -7,6 +7,7 @@
 	import { Chess, type Move } from 'chess.js';
 	import { evaluateBoard } from './evaluateBoard';
 	import { checkStatus } from './boardStatus.js';
+	import { playAudio } from './playAudio.js';
 
 	let board: any;
 	let chessboardElm: HTMLDivElement;
@@ -124,10 +125,12 @@
 			case INPUT_EVENT_TYPE.moveInputStarted:
 				return true;
 			case INPUT_EVENT_TYPE.validateMoveInput:
-				const result = validateMoveInput(event);
-				if (result === undefined || result === null) {
+				const playerMove = validateMoveInput(event);
+				if (playerMove === undefined || playerMove === null) {
 					event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 					return;
+				} else {
+					playAudio({ move: playerMove, isPlayer: true });
 				}
 
 				board.state.moveInputProcess.then(() => {
@@ -144,6 +147,7 @@
 						setTimeout(() => {
 							// move black
 							chess.move(bestMove);
+							playAudio({ move: bestMove, isPlayer: false });
 
 							// update board
 							event.chessboard.setPosition(chess.fen(), true);
@@ -157,12 +161,12 @@
 
 							// enable player to play again
 							event.chessboard.enableMoveInput(inputHandler, COLOR.white);
-						}, 100);
+						}, 500);
 					});
 				});
 
 				newScore = evaluateBoard(chess);
-				return result;
+				return playerMove;
 			case INPUT_EVENT_TYPE.moveInputCanceled:
 				return true;
 		}
