@@ -7,7 +7,7 @@
 	import { Chess, type Move } from 'chess.js';
 	import { evaluateBoard } from './evaluateBoard';
 	import { checkStatus } from './boardStatus.js';
-	import { playAudio } from './playAudio.js';
+	import { findAndPlayAudio } from './playAudio.js';
 
 	let board: any;
 	let chessboardElm: HTMLDivElement;
@@ -120,7 +120,7 @@
 		return bestMove === null ? [move, bestScore] : [bestMove, bestScore];
 	}
 
-	function inputHandler(event: any) {
+	async function inputHandler(event: any) {
 		switch (event.type) {
 			case INPUT_EVENT_TYPE.moveInputStarted:
 				return true;
@@ -130,7 +130,7 @@
 					event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 					return;
 				} else {
-					playAudio({ move: playerMove, isPlayer: true });
+					await findAndPlayAudio({ move: playerMove, isPlayer: true });
 				}
 
 				board.state.moveInputProcess.then(() => {
@@ -144,14 +144,14 @@
 
 						const [bestMove, _] = calculateBestMove(depth);
 
-						setTimeout(() => {
+						setTimeout(async () => {
 							// move black
 							chess.move(bestMove);
-							playAudio({ move: bestMove, isPlayer: false });
 
 							// update board
 							event.chessboard.setPosition(chess.fen(), true);
 							newScore = evaluateBoard(chess);
+							await findAndPlayAudio({ move: bestMove, isPlayer: false });
 
 							const { ended, status } = checkStatus(chess, COLOR.white);
 							if (ended) {

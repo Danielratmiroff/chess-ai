@@ -6,21 +6,28 @@ type playAudioParams = {
 	isPlayer: boolean;
 };
 
-export function playAudio({ move, isPlayer }: playAudioParams) {
+export async function findAndPlayAudio({ move, isPlayer }: playAudioParams) {
 	const { flags } = move;
 	const audioData = isPlayer ? playerAudioData : AIAudioData;
 
 	switch (flags) {
 		case 'e':
-			new Audio(audioData.capture.knight).play();
+			await playAudio(new Audio(audioData.capture.knight));
 			break;
 		case 'c':
-			new Audio(audioData.capture.knight).play();
+			await playAudio(new Audio(audioData.capture.knight));
 			break;
 		case 'p':
-			new Audio(audioData.capture.knight).play();
+			await playAudio(new Audio(audioData.capture.knight));
 			break;
 		default:
 			break;
 	}
+}
+
+function playAudio(audio: HTMLAudioElement) {
+	return new Promise((res) => {
+		audio.play();
+		audio.onended = res;
+	});
 }
