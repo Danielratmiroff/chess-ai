@@ -8,7 +8,7 @@
 	</main>
 
 	<footer>
-		<p>hello world</p>
+		<p>eat your broccoli</p>
 	</footer>
 </div>
 
@@ -36,10 +36,6 @@
 		justify-content: center;
 		align-items: center;
 		padding: 12px;
-	}
-
-	footer a {
-		font-weight: bold;
 	}
 
 	@media (min-width: 480px) {

@@ -38,9 +38,9 @@ function getPieceValue(piece: Piece, x: number, y: number) {
 	var absoluteValue = getAbsoluteValue(piece, x, y, PSTByColor);
 
 	if (piece.color === COLOR.white) {
-		return absoluteValue;
-	} else {
 		return -absoluteValue;
+	} else {
+		return absoluteValue;
 	}
 }
 

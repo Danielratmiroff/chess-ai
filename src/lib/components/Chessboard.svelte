@@ -14,7 +14,7 @@
 	let movesAnalised = 0;
 	let newScore = 0;
 	let endMsg = '';
-	let bestMove: Move | null = null;
+	let depth = 3;
 
 	onMount(() => {
 		if (chessboardElm) {
@@ -32,79 +32,47 @@
 		}
 	});
 
-	// function negaMax(
-	// 	game: Chess,
-	// 	alpha: number,
-	// 	beta: number,
-	// 	depth: number,
-	// 	move: Move,
-	// 	sum: number
-	// ): { bestMove: unknown; bestScore: number } {
-	// 	movesAnalised++;
-	// 	let bestScore = Number.NEGATIVE_INFINITY;
-	// 	let bestMove: unknown;
+	/**
+	 Alpha = best value for MAX
+	 Beta = best value for MIN
+	 Depth = depth of search
+	 maximizingPlayer = AI 
+	**/
+	type AlphaBetaReturn = [bestScore: number, bestMove: Move | null];
 
-	// 	if (depth === 0) {
-	// 		return { bestMove: move, bestScore: sum };
-	// 	}
+	type AlphaBeta = {
+		game: Chess;
+		alpha: number;
+		beta: number;
+		depth: number;
+		maximizingPlayer: boolean;
+	};
 
-	// 	const moves = game.moves({ verbose: true }) as Move[];
-	// 	// Sort moves randomly, so the same move isn't always picked on ties
-	// 	moves.sort(() => 0.5 - Math.random());
+	function minimax({ game, alpha, beta, depth, maximizingPlayer }: AlphaBeta): AlphaBetaReturn {
+		movesAnalised++;
+		let bestMove: Move | null = null;
 
-	// 	for (const possibleMove of moves) {
-	// 		game.move(possibleMove);
-	// 		const newSum = evaluateBoard(game);
-	// 		const { bestScore: score } = negaMax(game, -beta, -alpha, depth - 1, possibleMove, newSum);
-	// 		game.undo();
-
-	// 		if (score >= beta) {
-	// 			return { bestMove, bestScore: score };
-	// 		}
-
-	// 		if (bestScore < score) {
-	// 			bestScore = score;
-	// 			bestMove = possibleMove;
-	// 		}
-
-	// 		if (alpha < score) {
-	// 			alpha = score;
-	// 			if (alpha >= beta) {
-	// 				break;
-	// 			}
-	// 		}
-	// 	}
-
-	// 	return { bestMove, bestScore };
-	// }
-
-	// Alpha = best value for MAX
-	// Beta = best value for MIN
-	// Depth = depth of search
-	// Player = current player
-	// Return value = best move for current player
-	function minimax(
-		game: Chess,
-		alpha: number,
-		beta: number,
-		depth: number,
-		maximizingPlayer: boolean
-	) {
 		if (depth === 0) {
-			return evaluateBoard(game);
+			return [evaluateBoard(game), null];
 		}
 
 		const possibleMoves = game.moves({ verbose: true }) as Move[];
 
-		// Sort moves randomly, so the same move isn't always picked on ties
+		// Sort randomly to avoid same moves being chosen every time
 		possibleMoves.sort(() => 0.5 - Math.random());
 
 		var maxValue = Number.NEGATIVE_INFINITY;
 		var minValue = Number.POSITIVE_INFINITY;
 
-		for (let move of possibleMoves) {
+		for (const move of possibleMoves) {
 			game.move(move);
-			const childValue = minimax(game, alpha, beta, depth - 1, maximizingPlayer);
+			const [childValue, _] = minimax({
+				game,
+				alpha,
+				beta,
+				depth: depth - 1,
+				maximizingPlayer: !maximizingPlayer
+			});
 			game.undo();
 
 			if (maximizingPlayer) {
@@ -131,24 +99,24 @@
 			}
 		}
 
-		return maximizingPlayer ? maxValue : minValue;
+		return maximizingPlayer ? [maxValue, bestMove] : [minValue, bestMove];
 	}
 
-	function calculateBestMove(): [Move, number] {
+	function calculateBestMove(depthLvl: number): [Move, number] {
 		movesAnalised = 0;
 		let alpha = Number.NEGATIVE_INFINITY;
 		let beta = Number.POSITIVE_INFINITY;
-		const depth = 3;
 
 		let move = chess.moves({ verbose: true })[0] as Move;
-		const score = minimax(chess, alpha, beta, depth, true);
-		console.log(score, bestMove);
+		const [bestScore, bestMove] = minimax({
+			game: chess,
+			alpha,
+			beta,
+			depth,
+			maximizingPlayer: true
+		});
 
-		if (bestMove === null) {
-			return [move, score];
-		} else {
-			return [bestMove, score];
-		}
+		return bestMove === null ? [move, bestScore] : [bestMove, bestScore];
 	}
 
 	function inputHandler(event: any) {
@@ -165,16 +133,28 @@
 				board.state.moveInputProcess.then(() => {
 					// wait for the move input process has finished
 					board.setPosition(chess.fen(), true).then(() => {
-						const [move, score] = calculateBestMove();
+						const { ended, status } = checkStatus(chess, COLOR.black);
+						if (ended) {
+							endMsg = status;
+							return;
+						}
+
+						const [bestMove, _] = calculateBestMove(depth);
 
 						setTimeout(() => {
 							// move black
-							chess.move(move);
+							chess.move(bestMove);
+
 							// update board
 							event.chessboard.setPosition(chess.fen(), true);
-							newScore = score;
-							//
-							// checkStatus(chess, COLOR.black);
+							newScore = evaluateBoard(chess);
+
+							const { ended, status } = checkStatus(chess, COLOR.white);
+							if (ended) {
+								endMsg = status;
+								return;
+							}
+
 							// enable player to play again
 							event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 						}, 100);
@@ -192,19 +172,6 @@
 		// video: explain how the chess knows which move to move (it knows which piece is in which place)
 		const move = { from: event.squareFrom, to: event.squareTo };
 		const gameMove = chess.move(move);
-
-		const { ended: blackLost, status: blackStatus } = checkStatus(chess, COLOR.black);
-		if (blackLost) {
-			endMsg = blackStatus;
-			return;
-		}
-
-		const { ended: whiteLost, status: whiteStatus } = checkStatus(chess, COLOR.white);
-		if (whiteLost) {
-			endMsg = whiteStatus;
-			return;
-		}
-
 		// TODO: show which pieces were captured
 		return gameMove;
 	}
@@ -215,10 +182,38 @@
 <section>
 	<div width="1000" bind:this={chessboardElm} />
 	<div>
-		<p>Black's Score: {newScore}</p>
+		<p>AI score: {newScore}</p>
 		<p>Moves analised: {movesAnalised}</p>
+	</div>
+	<div>
+		<p style="line-height: 1">Difficulty <i>depth: {depth}</i></p>
+		<div class="button-container">
+			<button class:selected={depth === 1} on:click={() => (depth = 1)}>Noob</button>
+			<button class:selected={depth === 3} on:click={() => (depth = 3)}>Confront it </button>
+			<button class:selected={depth === 5} on:click={() => (depth = 5)}>Suffering</button>
+		</div>
 	</div>
 	{#if endMsg.length > 0}
 		<h1>{endMsg}</h1>
 	{/if}
 </section>
+
+<style>
+	.selected {
+		background-color: cornflowerblue;
+		color: white;
+	}
+	p {
+		color: black;
+	}
+	.button-container {
+		width: 100%;
+		gap: 0.5rem;
+		display: flex;
+		align-items: center;
+	}
+	i {
+		font-size: 0.8rem;
+		color: grey;
+	}
+</style>
