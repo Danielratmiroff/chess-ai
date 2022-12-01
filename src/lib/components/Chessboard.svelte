@@ -180,33 +180,73 @@
 <svelte:head />
 
 <section>
+	<div class="score">
+		<h3>AI score: {newScore}</h3>
+		<span>Moves analised: {movesAnalised}</span>
+	</div>
 	<div width="1000" bind:this={chessboardElm} />
 	<div>
-		<p>AI score: {newScore}</p>
-		<p>Moves analised: {movesAnalised}</p>
+		{#if endMsg.length > 0}
+			<h1>{endMsg}</h1>
+		{/if}
 	</div>
 	<div>
-		<p style="line-height: 1">Difficulty <i>depth: {depth}</i></p>
-		<div class="button-container">
+		<p class="difficulty">Difficulty <i>depth: {depth}</i></p>
+		<div class="flex-container">
 			<button class:selected={depth === 1} on:click={() => (depth = 1)}>Noob</button>
 			<button class:selected={depth === 3} on:click={() => (depth = 3)}>Confront it </button>
 			<button class:selected={depth === 5} on:click={() => (depth = 5)}>Suffering</button>
 		</div>
 	</div>
-	{#if endMsg.length > 0}
-		<h1>{endMsg}</h1>
-	{/if}
+	<button class="restart" on:click={() => location.reload()}>Restart</button>
 </section>
 
 <style>
+	h3 {
+		margin: 0;
+	}
+	.score {
+		margin-bottom: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		text-align: center;
+		gap: 0.7rem;
+	}
+	section {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+	.restart {
+		background-color: #277c28;
+		border: none;
+		color: white;
+		padding: 0.7rem 1rem;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		border-radius: 4px;
+		margin: 2rem auto;
+		cursor: pointer;
+	}
 	.selected {
 		background-color: cornflowerblue;
 		color: white;
 	}
 	p {
 		color: black;
+		line-height: 1;
+		margin-bottom: 0.7rem;
 	}
-	.button-container {
+	span {
+		font-size: 0.9rem;
+	}
+	.difficulty {
+		line-height: 1;
+		margin-top: 2rem;
+	}
+	.flex-container {
 		width: 100%;
 		gap: 0.5rem;
 		display: flex;
