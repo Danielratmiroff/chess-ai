@@ -3,11 +3,12 @@
 	import { COLOR, INPUT_EVENT_TYPE, Chessboard } from './cm-chessboard/Chessboard.js';
 	import sprite from '$lib/images/chessboard-sprite-staunty.svg';
 	// video: explain why it looked bad before this and why i needed to add css to the board
+	// video: Minimax with Alpha Beta Pruning John Levine
 	import '$lib/styles/cm-chessboard.scss';
 	import { Chess, type Move } from 'chess.js';
 	import { evaluateBoard } from './evaluateBoard';
 	import { checkStatus } from './boardStatus.js';
-	import { findAndPlayAudio } from './playAudio.js';
+	import { playAudioOnMove } from './playAudio.js';
 
 	let board: any;
 	let chessboardElm: HTMLDivElement;
@@ -113,7 +114,7 @@
 			game: chess,
 			alpha,
 			beta,
-			depth,
+			depth: depthLvl,
 			maximizingPlayer: true
 		});
 
@@ -130,7 +131,7 @@
 					event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 					return;
 				} else {
-					await findAndPlayAudio({ move: playerMove, isPlayer: true });
+					await playAudioOnMove({ move: playerMove, isPlayer: true });
 				}
 
 				board.state.moveInputProcess.then(() => {
@@ -151,7 +152,7 @@
 							// update board
 							event.chessboard.setPosition(chess.fen(), true);
 							newScore = evaluateBoard(chess);
-							await findAndPlayAudio({ move: bestMove, isPlayer: false });
+							await playAudioOnMove({ move: bestMove, isPlayer: false });
 
 							const { ended, status } = checkStatus(chess, COLOR.white);
 							if (ended) {
