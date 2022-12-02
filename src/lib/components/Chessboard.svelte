@@ -130,9 +130,9 @@
 				if (playerMove === undefined || playerMove === null) {
 					event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 					return;
-				} else {
-					await playAudioOnMove({ move: playerMove, isPlayer: true });
 				}
+
+				await playAudioOnMove({ chess, move: playerMove, isPlayer: true });
 
 				board.state.moveInputProcess.then(() => {
 					// wait for the move input process has finished
@@ -152,7 +152,7 @@
 							// update board
 							event.chessboard.setPosition(chess.fen(), true);
 							newScore = evaluateBoard(chess);
-							await playAudioOnMove({ move: bestMove, isPlayer: false });
+							await playAudioOnMove({ chess, move: bestMove, isPlayer: false });
 
 							const { ended, status } = checkStatus(chess, COLOR.white);
 							if (ended) {
@@ -196,11 +196,11 @@
 		{/if}
 	</div>
 	<div>
-		<p class="difficulty">Difficulty <i>depth: {depth}</i></p>
+		<p class="difficulty">Difficulty <i>search depth: {depth}</i></p>
 		<div class="flex-container">
 			<button class:selected={depth === 1} on:click={() => (depth = 1)}>Noob</button>
 			<button class:selected={depth === 3} on:click={() => (depth = 3)}>Confront it </button>
-			<button class:selected={depth === 5} on:click={() => (depth = 5)}>Suffering</button>
+			<button class:selected={depth === 4} on:click={() => (depth = 4)}>Suffering</button>
 		</div>
 	</div>
 	<button class="restart" on:click={() => location.reload()}>Restart</button>
