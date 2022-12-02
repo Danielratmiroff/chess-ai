@@ -1,9 +1,10 @@
 import type { Chess } from 'chess.js';
 
 export function checkStatus(game: Chess, color: string) {
+	const playerColor = color === 'w' ? 'white' : 'black';
 	let status: string = '';
 	if (game.isCheckmate()) {
-		status = `Checkmate! ${color} lost.`;
+		status = `Checkmate! ${playerColor} lost.`;
 	} else if (game.isInsufficientMaterial()) {
 		status = `Draw! (Insufficient Material)`;
 	} else if (game.isThreefoldRepetition()) {
@@ -13,7 +14,7 @@ export function checkStatus(game: Chess, color: string) {
 	} else if (game.isDraw()) {
 		status = `Draw! (50-move Rule)`;
 	} else if (game.inCheck()) {
-		status = `Check... ${color} in is check`;
+		status = `Check! *${playerColor}* in is check`;
 		return { status, ended: false };
 	} else {
 		return { status, ended: false };

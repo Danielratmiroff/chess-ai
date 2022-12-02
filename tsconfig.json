@@ -1,18 +1,17 @@
 {
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
-		"allowJs": true,
-		"checkJs": true,
 		"esModuleInterop": true,
+		"allowJs": true,
+		"outDir": "dist",
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"sourceMap": true,
-		"strict": true
+		"noUnusedParameters": true,
+		"noImplicitAny": true,
+		"strict": true,
+		"noUnusedLocals": true
 	},
-	"exclude": ["node_modules", "*.js"]
-	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
-	//
-	// If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes
-	// from the referenced tsconfig.json - TypeScript does not merge them in
+	"exclude": ["node_modules", "packages/*/node_modules", "*.js", "src/**/*.js"]
 }

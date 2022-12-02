@@ -15,7 +15,7 @@
 	const chess = new Chess();
 	let movesAnalised = 0;
 	let newScore = 0;
-	let endMsg = '';
+	let statusMsg = '';
 	let depth = 3;
 
 	onMount(() => {
@@ -23,7 +23,7 @@
 			board = new Chessboard(chessboardElm, {
 				position: chess.fen(),
 				sprite: { url: sprite },
-				draggable: true,
+				responsive: true,
 				orientation: COLOR.white,
 				style: {
 					cssClass: 'blue'
@@ -121,25 +121,27 @@
 		return bestMove === null ? [move, bestScore] : [bestMove, bestScore];
 	}
 
-	async function inputHandler(event: any) {
+	function inputHandler(event: any) {
 		switch (event.type) {
 			case INPUT_EVENT_TYPE.moveInputStarted:
 				return true;
+			case INPUT_EVENT_TYPE.moveInputCanceled:
+				return false;
 			case INPUT_EVENT_TYPE.validateMoveInput:
 				const playerMove = validateMoveInput(event);
 				if (playerMove === undefined || playerMove === null) {
-					event.chessboard.enableMoveInput(inputHandler, COLOR.white);
 					return;
 				}
 
-				await playAudioOnMove({ chess, move: playerMove, isPlayer: true });
+				playAudioOnMove({ chess, move: playerMove, isPlayer: true });
 
 				board.state.moveInputProcess.then(() => {
 					// wait for the move input process has finished
 					board.setPosition(chess.fen(), true).then(() => {
 						const { ended, status } = checkStatus(chess, COLOR.black);
+						statusMsg = status;
 						if (ended) {
-							endMsg = status;
+							board.disableMoveInput();
 							return;
 						}
 
@@ -150,35 +152,32 @@
 							chess.move(bestMove);
 
 							// update board
-							event.chessboard.setPosition(chess.fen(), true);
+							board.setPosition(chess.fen(), true);
 							newScore = evaluateBoard(chess);
-							await playAudioOnMove({ chess, move: bestMove, isPlayer: false });
+							playAudioOnMove({ chess, move: bestMove, isPlayer: false });
 
-							const { ended, status } = checkStatus(chess, COLOR.white);
+							const { ended, status } = checkStatus(chess, COLOR.black);
+							statusMsg = status;
 							if (ended) {
-								endMsg = status;
+								board.disableMoveInput();
 								return;
 							}
 
 							// enable player to play again
-							event.chessboard.enableMoveInput(inputHandler, COLOR.white);
+							board.enableMoveInput(inputHandler, COLOR.white);
 						}, 500);
 					});
 				});
 
 				newScore = evaluateBoard(chess);
 				return playerMove;
-			case INPUT_EVENT_TYPE.moveInputCanceled:
-				return true;
 		}
 	}
 
 	function validateMoveInput(event: any) {
 		// video: explain how the chess knows which move to move (it knows which piece is in which place)
-		const move = { from: event.squareFrom, to: event.squareTo };
-		const gameMove = chess.move(move);
 		// TODO: show which pieces were captured
-		return gameMove;
+		return chess.move({ from: event.squareFrom, to: event.squareTo });
 	}
 </script>
 
@@ -191,8 +190,8 @@
 	</div>
 	<div width="1000" bind:this={chessboardElm} />
 	<div>
-		{#if endMsg.length > 0}
-			<h1>{endMsg}</h1>
+		{#if statusMsg.length > 0}
+			<h2 style="color: red">{statusMsg}</h2>
 		{/if}
 	</div>
 	<div>
