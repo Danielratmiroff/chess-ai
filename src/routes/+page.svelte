@@ -1,7 +1,11 @@
-<script>
-	import welcome from '$lib/images/svelte-welcome.webp';
-	import welcome_fallback from '$lib/images/svelte-welcome.png';
+<script lang="ts">
 	import Chessboard from '$lib/components/Chessboard.svelte';
+
+	let lang: string | undefined;
+
+	$: if (typeof window !== 'undefined') {
+		lang = window.navigator.language;
+	}
 </script>
 
 <svelte:head>
@@ -10,7 +14,7 @@
 </svelte:head>
 
 <section>
-	<Chessboard />
+	<Chessboard {lang} />
 </section>
 
 <style>

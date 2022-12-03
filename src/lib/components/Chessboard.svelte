@@ -10,6 +10,7 @@
 	import { checkStatus } from './boardStatus.js';
 	import { playAudioOnMove } from './playAudio.js';
 
+	export let lang: string | undefined;
 	let board: any;
 	let chessboardElm: HTMLDivElement;
 	const chess = new Chess();
@@ -32,6 +33,7 @@
 
 			board.enableMoveInput(inputHandler, COLOR.white);
 		}
+		console.log(lang);
 	});
 
 	/**
