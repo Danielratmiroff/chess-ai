@@ -9,6 +9,8 @@
 	import { evaluateBoard } from './evaluateBoard';
 	import { checkStatus } from './boardStatus.js';
 	import { playAudioOnMove } from './playAudio.js';
+	import LangRatioButtons from './LangRatioButtons.svelte';
+	import Difficulty from './Difficulty.svelte';
 
 	export let lang: string | undefined;
 	let board: any;
@@ -196,15 +198,10 @@
 			<h2 style="color: red">{statusMsg}</h2>
 		{/if}
 	</div>
-	<div>
-		<p class="difficulty">Difficulty <i>search depth: {depth}</i></p>
-		<div class="flex-container">
-			<button class:selected={depth === 1} on:click={() => (depth = 1)}>Noob</button>
-			<button class:selected={depth === 3} on:click={() => (depth = 3)}>Confront it </button>
-			<button class:selected={depth === 4} on:click={() => (depth = 4)}>Suffering</button>
-		</div>
-	</div>
 	<button class="restart" on:click={() => location.reload()}>Restart</button>
+
+	<Difficulty bind:depth />
+	<LangRatioButtons bind:lang />
 </section>
 
 <style>
@@ -231,14 +228,9 @@
 		padding: 0.7rem 1rem;
 		text-align: center;
 		text-decoration: none;
-		display: inline-block;
 		border-radius: 4px;
-		margin: 2rem auto;
+		margin-top: 2rem;
 		cursor: pointer;
-	}
-	.selected {
-		background-color: cornflowerblue;
-		color: white;
 	}
 	p {
 		color: black;
@@ -247,19 +239,5 @@
 	}
 	span {
 		font-size: 0.9rem;
-	}
-	.difficulty {
-		line-height: 1;
-		margin-top: 2rem;
-	}
-	.flex-container {
-		width: 100%;
-		gap: 0.5rem;
-		display: flex;
-		align-items: center;
-	}
-	i {
-		font-size: 0.8rem;
-		color: grey;
 	}
 </style>
