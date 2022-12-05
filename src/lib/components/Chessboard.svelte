@@ -232,11 +232,6 @@
 		margin-top: 2rem;
 		cursor: pointer;
 	}
-	p {
-		color: black;
-		line-height: 1;
-		margin-bottom: 0.7rem;
-	}
 	span {
 		font-size: 0.9rem;
 	}
