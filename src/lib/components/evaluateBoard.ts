@@ -1,6 +1,6 @@
-import { MOVE_FLAGS, PST_OPPONENT, PST_SELF, WEIGHTS } from '$lib/data/constants';
+import { WEIGHTS } from '$lib/data/constants';
 import { PST_BLACK, PST_WHITE } from '$lib/data/table-scores';
-import type { Chess, Color, Move, PieceSymbol, Square } from 'chess.js';
+import type { Chess, Color, PieceSymbol, Square } from 'chess.js';
 import { COLOR } from './cm-chessboard/Chessboard';
 
 type Piece = {
@@ -19,9 +19,9 @@ export function evaluateBoard(game: Chess) {
 	}
 
 	const board = game.board();
-	var totalEvaluation = 0;
-	for (var row = 0; row < 8; row++) {
-		for (var col = 0; col < 8; col++) {
+	let totalEvaluation = 0;
+	for (let row = 0; row < 8; row++) {
+		for (let col = 0; col < 8; col++) {
 			totalEvaluation += getPieceValue(board[row][col], row, col);
 		}
 	}
@@ -35,7 +35,7 @@ function getPieceValue(piece: Piece, x: number, y: number) {
 
 	const PSTByColor = piece.color === COLOR.white ? PST_WHITE : PST_BLACK;
 
-	var absoluteValue = getAbsoluteValue(piece, x, y, PSTByColor);
+	const absoluteValue = getAbsoluteValue(piece, x, y, PSTByColor);
 
 	if (piece.color === COLOR.white) {
 		return -absoluteValue;
@@ -44,7 +44,7 @@ function getPieceValue(piece: Piece, x: number, y: number) {
 	}
 }
 
-var getAbsoluteValue = function (
+const getAbsoluteValue = function (
 	piece: Piece,
 	x: number,
 	y: number,

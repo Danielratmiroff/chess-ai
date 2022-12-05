@@ -67,8 +67,8 @@
 		// Sort randomly to avoid same moves being chosen every time
 		possibleMoves.sort(() => 0.5 - Math.random());
 
-		var maxValue = Number.NEGATIVE_INFINITY;
-		var minValue = Number.POSITIVE_INFINITY;
+		let maxValue = Number.NEGATIVE_INFINITY;
+		let minValue = Number.POSITIVE_INFINITY;
 
 		for (const move of possibleMoves) {
 			game.move(move);
@@ -231,11 +231,6 @@
 		border-radius: 4px;
 		margin-top: 2rem;
 		cursor: pointer;
-	}
-	p {
-		color: black;
-		line-height: 1;
-		margin-bottom: 0.7rem;
 	}
 	span {
 		font-size: 0.9rem;
