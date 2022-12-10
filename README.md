@@ -54,7 +54,7 @@ First, each piece needs a value:
 
 Each piece's position in the board needs a value too
 
-```javascript
+```typescript
 // PAWN
 p: [
 	[100, 100, 100, 100, 105, 100, 100, 100],
@@ -81,7 +81,7 @@ No matter the algorithm we chose, we need an **evaluation function** that calcul
 
 We will use this score to let the AI know which positions are good or bad.
 
-```
+```typescript
 // Idea behind evaluation function
 function evaluateBoard(game: Chess) {
   const board = game.board();
