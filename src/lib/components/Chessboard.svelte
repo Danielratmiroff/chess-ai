@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { COLOR, INPUT_EVENT_TYPE, Chessboard } from './cm-chessboard/Chessboard.js';
-	import sprite from '$lib/images/chessboard-sprite-staunty.svg';
+	import sprite from '$lib/assets/images/chessboard-sprite-staunty.svg';
 	// video: explain why it looked bad before this and why i needed to add css to the board
 	// video: Minimax with Alpha Beta Pruning John Levine
 	import '$lib/styles/cm-chessboard.scss';
 	import { Chess, type Move } from 'chess.js';
 	import { evaluateBoard } from './evaluateBoard';
 	import { checkStatus } from './boardStatus.js';
-	import { playAudioOnMove } from './playAudio.js';
+	import { playAudioOnMove, SupportedLang } from './playAudio.js';
 	import LangRatioButtons from './LangRatioButtons.svelte';
 	import Difficulty from './Difficulty.svelte';
 
-	export let lang: string | undefined;
+	export let lang: SupportedLang = SupportedLang.EN;
 	let board: any;
 	let chessboardElm: HTMLDivElement;
 	const chess = new Chess();
@@ -35,7 +35,6 @@
 
 			board.enableMoveInput(inputHandler, COLOR.white);
 		}
-		console.log(lang);
 	});
 
 	/**
@@ -137,7 +136,7 @@
 					return;
 				}
 
-				playAudioOnMove({ chess, move: playerMove, isPlayer: true });
+				playAudioOnMove({ lang, chess, move: playerMove, isPlayer: true });
 
 				board.state.moveInputProcess.then(() => {
 					// wait for the move input process has finished
@@ -158,7 +157,7 @@
 							// update board
 							board.setPosition(chess.fen(), true);
 							newScore = evaluateBoard(chess);
-							playAudioOnMove({ chess, move: bestMove, isPlayer: false });
+							playAudioOnMove({ lang, chess, move: bestMove, isPlayer: false });
 
 							const { ended, status } = checkStatus(chess, COLOR.black);
 							statusMsg = status;
