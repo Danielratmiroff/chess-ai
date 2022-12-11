@@ -1,11 +1,13 @@
 <script lang="ts">
 	import Chessboard from '$lib/components/Chessboard.svelte';
+	import { SupportedLang } from '$lib/components/playAudio';
 
-	let lang: string | undefined;
+	let lang: SupportedLang = SupportedLang.ES;
 
-	$: if (typeof window !== 'undefined') {
-		lang = window.navigator.language;
-	}
+	// TODO: disabled dynamic lang for now
+	// $: if (typeof window !== 'undefined') {
+	// 	lang = window.navigator.language;
+	// }
 </script>
 
 <svelte:head>
