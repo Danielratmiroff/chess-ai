@@ -7,13 +7,17 @@
 <section class="lang-section">
 	<span>AI Language:</span>
 	<select bind:value={lang}>
-		<option on:change={() => (lang = 'en-US')} value="en-US">English</option>
-		<option on:change={() => (lang = 'de-DE')} default value="de-DE">German</option>
-		<option on:change={() => (lang = 'es-ES')} value="es-ES">Spanish</option>
+		<option on:change={() => (lang = 'en')} default value="en">English</option>
+		<option on:change={() => (lang = 'de')} value="de">German</option>
+		<option on:change={() => (lang = 'es')} value="es">Spanish</option>
 	</select>
 </section>
 
 <style>
+	select,
+	option {
+		font-size: 0.6rem;
+	}
 	span {
 		font-size: 0.8rem;
 	}

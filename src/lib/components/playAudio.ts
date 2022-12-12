@@ -15,6 +15,8 @@ export enum SupportedLang {
 	ES = 'es'
 }
 
+const flipACoin = Math.random() > 0.35;
+
 export async function playAudioOnMove({ lang, chess, move, isPlayer }: playAudioParams) {
 	const audioData = isPlayer ? defensiveAudio : ofensiveAudio;
 
@@ -23,7 +25,7 @@ export async function playAudioOnMove({ lang, chess, move, isPlayer }: playAudio
 	// const flags = move.flags as MOVE_FLAGS;
 
 	if (chess.isCheckmate()) {
-		const audio = new Audio(audioData[lang].check);
+		const audio = new Audio(audioData[lang].checkMate);
 		await playAudio(audio);
 		return;
 	}
@@ -34,16 +36,16 @@ export async function playAudioOnMove({ lang, chess, move, isPlayer }: playAudio
 		return;
 	}
 
-	if (move.captured) {
+	if (move.captured && flipACoin) {
 		const randomIndex = Math.floor(Math.random() * audioData[lang].move.length);
 		const audio = audioData[lang].move[randomIndex];
 		await playAudio(new Audio(audio));
 	}
 }
 
-function playAudio(audio: HTMLAudioElement) {
+function playAudio(audioElm: HTMLAudioElement) {
 	return new Promise((res) => {
-		audio.play();
-		audio.onended = res;
+		audioElm.play();
+		audioElm.onended = res;
 	});
 }

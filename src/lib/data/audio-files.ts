@@ -7,10 +7,6 @@ type AudioByMove = {
 	// [key in PieceSymbol]?: string;
 };
 
-// TODO: play the right audio on move
-// figure our why automutes
-// fix language thingy
-
 interface IGameAudio extends AudioByMove {
 	check: string;
 	checkMate: string;
@@ -20,8 +16,6 @@ interface IGameAudio extends AudioByMove {
 type AudioLangBased = {
 	[key in SupportedLang]: IGameAudio;
 };
-
-const OPEN_DRIVE_ES_URL = 'https://od.lk/s/OTRfNTc0MjEwNTBf/';
 
 export const ofensiveAudio: AudioLangBased = {
 	// Personalised audio by move type
@@ -33,71 +27,73 @@ export const ofensiveAudio: AudioLangBased = {
 	// },
 
 	es: {
-		check: `${OPEN_DRIVE_ES_URL}es-check.mp3`,
-		checkMate: `${OPEN_DRIVE_ES_URL}es-end-1.mp3`,
-
+		check: 'https://od.lk/s/OTRfNTc0MjEwNjRf/es-check.mp3',
+		checkMate: 'https://od.lk/s/OTRfNTc0MjEwNTVf/es-end-1.mp3',
 		move: [
-			`${OPEN_DRIVE_ES_URL}es-of-1.mp3}`,
-			`${OPEN_DRIVE_ES_URL}es-of-2.mp3}`,
-			`${OPEN_DRIVE_ES_URL}es-of-3.mp3}`,
-			`${OPEN_DRIVE_ES_URL}es-of-4.mp3}`,
-			`${OPEN_DRIVE_ES_URL}es-of-5.mp3}`,
-			`${OPEN_DRIVE_ES_URL}es-of-6.mp3}`,
-			`${OPEN_DRIVE_ES_URL}es-end-2.mp3}`,
-			`${OPEN_DRIVE_ES_URL}es-end-3.mp3}`
+			'https://od.lk/s/OTRfNTc0MjEwNTZf/es-end-2.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNTdf/es-end-3.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNThf/es-of-1.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNTlf/es-of-2.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNjBf/es-of-3.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNjFf/es-of-4.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNjNf/es-of-6.mp3'
 		]
 	},
 	de: {
-		check: `${OPEN_DRIVE_ES_URL}de-check.mp3}`,
-		checkMate: `${OPEN_DRIVE_ES_URL}de-end-1.mp3}`,
+		check: 'https://od.lk/s/OTRfNTc0MjEwNTBf/de-check.mp3',
+		checkMate: 'https://od.lk/s/OTRfNTc0MjEwNDZf/de-end-1.mp3',
 		move: [
-			`${OPEN_DRIVE_ES_URL}de-of-1.mp3}`,
-			`${OPEN_DRIVE_ES_URL}de-of-2.mp3}`,
-			`${OPEN_DRIVE_ES_URL}de-of-3.mp3}`
+			'https://od.lk/s/OTRfNTc0MjEwNDdf/de-of-1.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNDhf/de-of-2.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNDlf/de-of-3.mp3'
 		]
 	},
 	en: {
 		move: [
-			`${OPEN_DRIVE_ES_URL}en-of-1.mp3}`,
-			`${OPEN_DRIVE_ES_URL}en-of-2.mp3}`,
-			`${OPEN_DRIVE_ES_URL}en-of-3.mp3}`,
-			`${OPEN_DRIVE_ES_URL}en-of-4.mp3}`,
-			`${OPEN_DRIVE_ES_URL}en-of-5.mp3}`
+			'https://od.lk/s/OTRfNTc0MjEwMzFf/en-of-1.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwMzJf/en-of-2.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwMzNf/en-of-3.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwMzRf/en-of-4.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwMzVf/en-of-5.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwMzJf/en-of-2.mp3',
+			''
 		],
-		check: `${OPEN_DRIVE_ES_URL}en-check.mp3}`,
-		checkMate: `${OPEN_DRIVE_ES_URL}en-end.mp3}`
+		check: 'https://od.lk/s/OTRfNTc0MjEwMzZf/en-check.mp3',
+		checkMate: 'https://od.lk/s/OTRfNTc0MjEwMzBf/en-end.mp3'
 	}
 };
 
 export const defensiveAudio: AudioLangBased = {
 	es: {
-		check: `${OPEN_DRIVE_ES_URL}es-check.mp3`,
-		checkMate: `${OPEN_DRIVE_ES_URL}es-end-1.mp3`,
+		check: 'https://od.lk/s/OTRfNTc0MjEwNTNf/es-def-2.mp3',
+		checkMate: 'https://od.lk/s/OTRfNTc0MjEwNTRf/es-def-3.mp3',
 
 		move: [
-			`${OPEN_DRIVE_ES_URL}es-def-1.mp3}`,
-			`${OPEN_DRIVE_ES_URL}es-def-2.mp3}`,
-			`${OPEN_DRIVE_ES_URL}es-def-3.mp3}`
+			'https://od.lk/s/OTRfNTc0MjEwNjVf/es-def-1.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNTNf/es-def-2.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNjJf/es-of-5.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNTRf/es-def-3.mp3'
 		]
 	},
 	de: {
 		move: [
-			`${OPEN_DRIVE_ES_URL}de-def-1.mp3}`,
-			`${OPEN_DRIVE_ES_URL}de-def-2.mp3}`,
-			`${OPEN_DRIVE_ES_URL}de-def-3.mp3}`,
-			`${OPEN_DRIVE_ES_URL}de-def-4.mp3}`
+			'https://od.lk/s/OTRfNTc0MjEwNTFf/de-def-1.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNTJf/de-def-2.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNDRf/de-def-3.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNDVf/de-def-4.mp3'
 		],
-		check: `${OPEN_DRIVE_ES_URL}de-check.mp3}`,
-		checkMate: `${OPEN_DRIVE_ES_URL}de-def-4.mp3}`
+		check: 'https://od.lk/s/OTRfNTc0MjEwNDVf/de-def-4.mp3',
+		checkMate: 'https://od.lk/s/OTRfNTc0MjEwNDRf/de-def-3.mp3'
 	},
 	en: {
 		move: [
-			`${OPEN_DRIVE_ES_URL}en-def-1.mp3}`,
-			`${OPEN_DRIVE_ES_URL}en-def-2.mp3}`,
-			`${OPEN_DRIVE_ES_URL}en-def-3.mp3}`,
-			`${OPEN_DRIVE_ES_URL}en-def-4.mp3}`
+			'https://od.lk/s/OTRfNTc0MjEwMzdf/en-def-1.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwMzhf/en-def-2.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwNDBf/en-def-3.mp3',
+			'https://od.lk/s/OTRfNTc0MjEwMjlf/en-def-4.mp3',
+			''
 		],
-		check: `${OPEN_DRIVE_ES_URL}en-def-2.mp3}`,
-		checkMate: `${OPEN_DRIVE_ES_URL}en-def-3.mp3}`
+		check: 'https://od.lk/s/OTRfNTc0MjEwMzhf/en-def-2.mp3',
+		checkMate: 'https://od.lk/s/OTRfNTc0MjEwNDBf/en-def-3.mp3'
 	}
 };
