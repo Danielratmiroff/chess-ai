@@ -1,5 +1,5 @@
 import { defensiveAudio, ofensiveAudio } from '$lib/data/audio-files';
-import type { MOVE_FLAGS } from '$lib/data/constants';
+// import type { MOVE_FLAGS } from '$lib/data/constants';
 import type { Chess, Move } from 'chess.js';
 
 type playAudioParams = {
@@ -15,8 +15,6 @@ export enum SupportedLang {
 	ES = 'es'
 }
 
-const flipACoin = Math.random() > 0.3;
-
 export async function playAudioOnMove({ lang, chess, move, isPlayer }: playAudioParams) {
 	const audioData = isPlayer ? defensiveAudio : ofensiveAudio;
 
@@ -25,27 +23,18 @@ export async function playAudioOnMove({ lang, chess, move, isPlayer }: playAudio
 	// const flags = move.flags as MOVE_FLAGS;
 
 	if (chess.isCheckmate()) {
-		const audio = new Audio(audioData[lang].checkMate);
-		await playAudio(audio);
+		new Audio(audioData[lang].checkMate).play();
 		return;
 	}
 
 	if (chess.isCheck()) {
-		const audio = new Audio(audioData[lang].check);
-		await playAudio(audio);
+		new Audio(audioData[lang].check).play();
 		return;
 	}
 
-	if (move.captured && flipACoin) {
+	if (move.captured) {
 		const randomIndex = Math.floor(Math.random() * audioData[lang].move.length);
 		const audio = audioData[lang].move[randomIndex];
-		await playAudio(new Audio(audio));
+		new Audio(audio).play();
 	}
-}
-
-function playAudio(audioElm: HTMLAudioElement) {
-	return new Promise((res) => {
-		audioElm.play();
-		audioElm.onended = res;
-	});
 }
