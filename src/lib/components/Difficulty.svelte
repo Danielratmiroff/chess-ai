@@ -2,27 +2,27 @@
 	export let depth: number;
 </script>
 
-<p class="difficulty">Difficulty</p>
 <div class="flex-container">
+	<p class="difficulty">Difficulty:</p>
 	<button class:selected={depth === 1} on:click={() => (depth = 1)}>Noob</button>
-	<button class:selected={depth === 3} on:click={() => (depth = 3)}>Confront it </button>
+	<button class:selected={depth === 3} on:click={() => (depth = 3)}>Smartass</button>
 	<button class:selected={depth === 4} on:click={() => (depth = 4)}>Suffering</button>
 </div>
 <i>search depth: {depth}</i>
 
 <style>
+	.difficulty {
+		margin: 0;
+	}
 	.selected {
 		background-color: cornflowerblue;
 		color: white;
 	}
-	.difficulty {
-		line-height: 1;
-		margin: 2rem 0 0.7rem 0;
-	}
 	.flex-container {
 		width: 100%;
-		gap: 0.5rem;
+		gap: 0.8rem;
 		display: flex;
+		margin: 2rem 0 0 0;
 		align-items: center;
 		justify-content: center;
 	}

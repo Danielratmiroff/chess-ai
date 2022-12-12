@@ -29,6 +29,7 @@
 				responsive: true,
 				orientation: COLOR.white,
 				style: {
+					aspectRatio: 1,
 					cssClass: 'blue'
 				}
 			});
@@ -187,10 +188,10 @@
 
 <section>
 	<div class="score">
-		<h3>AI score: {newScore}</h3>
+		<h1>AI score: {newScore}</h1>
 		<span>Moves analised: {movesAnalised}</span>
 	</div>
-	<div width="1000" bind:this={chessboardElm} />
+	<div class="board" bind:this={chessboardElm} />
 	<div class="status-container">
 		{#if statusMsg.length > 0}
 			<h2 class="status">{statusMsg}</h2>
@@ -203,6 +204,9 @@
 </section>
 
 <style>
+	.board {
+		width: 500px;
+	}
 	.status-container {
 		position: relative;
 		width: 100%;
@@ -211,7 +215,7 @@
 		color: red;
 		position: absolute;
 	}
-	h3 {
+	h1 {
 		margin: 0;
 	}
 	.score {
