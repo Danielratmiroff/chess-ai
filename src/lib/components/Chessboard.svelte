@@ -205,7 +205,8 @@
 
 <style>
 	.board {
-		width: 500px;
+		width: 625px;
+		max-width: 100%;
 	}
 	.status-container {
 		position: relative;
