@@ -14,6 +14,7 @@ export enum SupportedLang {
 	EN = 'en',
 	ES = 'es'
 }
+const flipACoin = () => Math.random() >= 0.2;
 
 export async function playAudioOnMove({ lang, chess, move, isPlayer }: playAudioParams) {
 	const audioData = isPlayer ? defensiveAudio : ofensiveAudio;
@@ -32,7 +33,7 @@ export async function playAudioOnMove({ lang, chess, move, isPlayer }: playAudio
 		return;
 	}
 
-	if (move.captured) {
+	if (move.captured && flipACoin()) {
 		const randomIndex = Math.floor(Math.random() * audioData[lang].move.length);
 		const audio = audioData[lang].move[randomIndex];
 		new Audio(audio).play();

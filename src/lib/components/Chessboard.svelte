@@ -169,7 +169,7 @@
 
 							// enable player to play again
 							board.enableMoveInput(inputHandler, COLOR.white);
-						}, 1000);
+						}, 1500);
 					});
 				});
 
