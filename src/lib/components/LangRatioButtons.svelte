@@ -15,9 +15,7 @@
 
 <style>
 	select,
-	option {
-		font-size: 0.6rem;
-	}
+	option,
 	span {
 		font-size: 0.8rem;
 	}
