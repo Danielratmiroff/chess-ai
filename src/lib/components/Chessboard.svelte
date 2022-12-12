@@ -178,7 +178,6 @@
 	}
 
 	function validateMoveInput(event: any) {
-		// video: explain how the chess knows which move to move (it knows which piece is in which place)
 		// TODO: show which pieces were captured
 		return chess.move({ from: event.squareFrom, to: event.squareTo });
 	}
@@ -192,9 +191,9 @@
 		<span>Moves analised: {movesAnalised}</span>
 	</div>
 	<div width="1000" bind:this={chessboardElm} />
-	<div>
+	<div class="status-container">
 		{#if statusMsg.length > 0}
-			<h2 style="color: red">{statusMsg}</h2>
+			<h2 class="status">{statusMsg}</h2>
 		{/if}
 	</div>
 	<button class="restart" on:click={() => location.reload()}>Restart</button>
@@ -204,6 +203,14 @@
 </section>
 
 <style>
+	.status-container {
+		position: relative;
+		width: 100%;
+	}
+	.status {
+		color: red;
+		position: absolute;
+	}
 	h3 {
 		margin: 0;
 	}
@@ -228,7 +235,7 @@
 		text-align: center;
 		text-decoration: none;
 		border-radius: 4px;
-		margin-top: 2rem;
+		margin-top: 2.5rem;
 		cursor: pointer;
 	}
 	span {
