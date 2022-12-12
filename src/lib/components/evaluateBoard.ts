@@ -1,13 +1,8 @@
 import { WEIGHTS } from '$lib/data/constants';
 import { PST_BLACK, PST_WHITE } from '$lib/data/table-scores';
-import type { Chess, Color, PieceSymbol, Square } from 'chess.js';
+import type { Piece } from '$lib/types';
+import type { Chess } from 'chess.js';
 import { COLOR } from './cm-chessboard/Chessboard';
-
-type Piece = {
-	square: Square;
-	type: PieceSymbol;
-	color: Color;
-} | null;
 
 export function evaluateBoard(game: Chess) {
 	if (game.isCheckmate()) {

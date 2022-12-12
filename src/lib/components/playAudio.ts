@@ -1,20 +1,8 @@
 import { defensiveAudio, ofensiveAudio } from '$lib/data/audio-files';
+import type { playAudioParams } from '$lib/types';
 // import type { MOVE_FLAGS } from '$lib/data/constants';
 import type { Chess, Move } from 'chess.js';
-
-type playAudioParams = {
-	chess: Chess;
-	move: Move;
-	lang: SupportedLang;
-	isPlayer: boolean;
-};
-
-export enum SupportedLang {
-	DE = 'de',
-	EN = 'en',
-	ES = 'es'
-}
-const flipACoin = () => Math.random() >= 0.2;
+const flipACoin = () => Math.random() >= 0.4;
 
 export async function playAudioOnMove({ lang, chess, move, isPlayer }: playAudioParams) {
 	const audioData = isPlayer ? defensiveAudio : ofensiveAudio;

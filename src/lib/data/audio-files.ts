@@ -1,21 +1,4 @@
-import type { SupportedLang } from '$lib/components/playAudio';
-import type { MOVE_FLAGS } from './constants';
-
-type AudioByMove = {
-	[key in MOVE_FLAGS]?: string[];
-	// Personalised audio by move type
-	// [key in PieceSymbol]?: string;
-};
-
-interface IGameAudio extends AudioByMove {
-	check: string;
-	checkMate: string;
-	move: string[];
-}
-
-type AudioLangBased = {
-	[key in SupportedLang]: IGameAudio;
-};
+import type { AudioLangBased } from '$lib/types';
 
 export const ofensiveAudio: AudioLangBased = {
 	// Personalised audio by move type
@@ -93,7 +76,7 @@ export const defensiveAudio: AudioLangBased = {
 			'https://od.lk/s/OTRfNTc0MjEwMjlf/en-def-4.mp3',
 			''
 		],
-		check: 'https://od.lk/s/OTRfNTc0MjEwMzhf/en-def-2.mp3',
-		checkMate: 'https://od.lk/s/OTRfNTc0MjEwNDBf/en-def-3.mp3'
+		check: 'https://od.lk/s/OTRfNTc0MjEwNDBf/en-def-3.mp3',
+		checkMate: 'https://od.lk/s/OTRfNTc0MjEwMzdf/en-def-1.mp3'
 	}
 };

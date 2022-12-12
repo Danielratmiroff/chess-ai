@@ -11,6 +11,14 @@
 	import { playAudioOnMove, SupportedLang } from './playAudio.js';
 	import LangRatioButtons from './LangRatioButtons.svelte';
 	import Difficulty from './Difficulty.svelte';
+	import type { AlphaBeta, AlphaBetaReturn } from '$lib/types.js';
+
+	// add delay function
+	// 	function delay(time) {
+	//   return new Promise(resolve => setTimeout(resolve, time));
+	// }
+
+	// delay(1000).then(() => console.log('ran after 1 second1 passed'));
 
 	export let lang: SupportedLang = SupportedLang.EN;
 	let board: any;
@@ -44,15 +52,6 @@
 	 Depth = depth of search
 	 maximizingPlayer = AI 
 	**/
-	type AlphaBetaReturn = [bestScore: number, bestMove: Move | null];
-
-	type AlphaBeta = {
-		game: Chess;
-		alpha: number;
-		beta: number;
-		depth: number;
-		maximizingPlayer: boolean;
-	};
 
 	function minimax({ game, alpha, beta, depth, maximizingPlayer }: AlphaBeta): AlphaBetaReturn {
 		movesAnalised++;
@@ -169,7 +168,7 @@
 
 							// enable player to play again
 							board.enableMoveInput(inputHandler, COLOR.white);
-						}, 1500);
+						}, 300);
 					});
 				});
 
