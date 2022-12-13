@@ -8,17 +8,11 @@
 	import { Chess, type Move } from 'chess.js';
 	import { evaluateBoard } from './evaluateBoard';
 	import { checkStatus } from './boardStatus.js';
-	import { playAudioOnMove, SupportedLang } from './playAudio.js';
+	import { playAudioOnMove } from './playAudio.js';
 	import LangRatioButtons from './LangRatioButtons.svelte';
 	import Difficulty from './Difficulty.svelte';
 	import type { AlphaBeta, AlphaBetaReturn } from '$lib/types.js';
-
-	// add delay function
-	// 	function delay(time) {
-	//   return new Promise(resolve => setTimeout(resolve, time));
-	// }
-
-	// delay(1000).then(() => console.log('ran after 1 second1 passed'));
+	import { SupportedLang } from '$lib/types.js';
 
 	export let lang: SupportedLang = SupportedLang.EN;
 	let board: any;

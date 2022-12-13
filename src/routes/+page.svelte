@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Chessboard from '$lib/components/Chessboard.svelte';
-	import { SupportedLang } from '$lib/components/playAudio';
+	import { SupportedLang } from '$lib/types';
 
 	let lang: SupportedLang = SupportedLang.EN;
 
