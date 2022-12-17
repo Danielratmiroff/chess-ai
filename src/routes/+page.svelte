@@ -13,8 +13,8 @@
 </script>
 
 <svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
+	<title>Chess AI</title>
+	<meta name="description" content="Chess AI that kicks ass" />
 </svelte:head>
 
 <section>

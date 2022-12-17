@@ -13,13 +13,6 @@
 	import Difficulty from './Difficulty.svelte';
 	import { SupportedLang, type AlphaBeta, type AlphaBetaReturn } from '$lib/types.js';
 
-	// add delay function
-	// 	function delay(time) {
-	//   return new Promise(resolve => setTimeout(resolve, time));
-	// }
-
-	// delay(1000).then(() => console.log('ran after 1 second1 passed'));
-
 	export let lang: SupportedLang = SupportedLang.EN;
 	let board: any;
 	let chessboardElm: HTMLDivElement;
