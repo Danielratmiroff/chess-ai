@@ -1,7 +1,15 @@
 import type { Chess } from 'chess.js';
 
 export function checkStatus(game: Chess, color: string) {
-	const playerColor = color === 'w' ? 'white' : 'black';
+	let playerColor: string | undefined;
+	let playerColorInCheck: string | undefined;
+	if (color === 'w') {
+		playerColor = 'white';
+		playerColorInCheck = 'black';
+	} else {
+		playerColor = 'black';
+		playerColorInCheck = 'white';
+	}
 	let status: string = '';
 	if (game.isCheckmate()) {
 		status = `Checkmate! ${playerColor} lost.`;

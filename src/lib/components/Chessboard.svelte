@@ -8,10 +8,10 @@
 	import { Chess, type Move } from 'chess.js';
 	import { evaluateBoard } from './evaluateBoard';
 	import { checkStatus } from './boardStatus.js';
-	import { playAudioOnMove, SupportedLang } from './playAudio.js';
+	import { playAudioOnMove } from './playAudio.js';
 	import LangRatioButtons from './LangRatioButtons.svelte';
 	import Difficulty from './Difficulty.svelte';
-	import type { AlphaBeta, AlphaBetaReturn } from '$lib/types.js';
+	import { SupportedLang, type AlphaBeta, type AlphaBetaReturn } from '$lib/types.js';
 
 	// add delay function
 	// 	function delay(time) {
